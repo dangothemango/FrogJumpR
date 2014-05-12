@@ -2,6 +2,7 @@ package com.neilanddan.app;
 
 import java.util.Random;
 
+import com.neilanddan.app.R;
 import com.neilanddan.drawing.GameBoard;
 
 import android.os.Bundle;
@@ -17,28 +18,31 @@ import android.graphics.Point;
 public class Main extends Activity implements OnClickListener{
 
 	private Handler frame = new Handler();
-	private Point sprite1Velocity;
-	private Point sprite2Velocity;
-	private int sprite1MaxX;
-	private int sprite1MaxY;
-	private int sprite2MaxX;
-	private int sprite2MaxY;
+//	private Point asteroidVelocity;
+	private Point frogVelocity;
+//	private Point sprite3Velocity; //a new rock!
+	private int asteroidMaxX;
+	private int asteroidMaxY;
+	private int frogMaxX;
+	private int frogMaxY;
+//	private int sprite3MaxX;
+//	private int sprite3MaxY;
 	//acceleration flag
-	private boolean isAccelerating = false;
+	private boolean rising = false;
 	private static final int FRAME_RATE = 20; //50 frames per second
 	
-	//Method for getting touch state
+	//Method for getting touch state--requires android 2.1 or greater
 	@Override
 	synchronized public boolean onTouchEvent(MotionEvent ev) {
        final int action = ev.getAction();
        switch (action & MotionEvent.ACTION_MASK) {
 	      case MotionEvent.ACTION_DOWN:
 	      case MotionEvent.ACTION_POINTER_DOWN:
-	   	   	isAccelerating = true;
+	   	   	rising = true;
     	   	break;
     	  case MotionEvent.ACTION_UP: 
 	      case MotionEvent.ACTION_POINTER_UP:
-	   		isAccelerating = false;
+	   		rising=false;
      		break;
      	}
 	    return true;
@@ -47,18 +51,18 @@ public class Main extends Activity implements OnClickListener{
 	//Increase the velocity towards five or decrease
 	//back to one depending on state
 	private void updateVelocity() {
-		int xDir = (sprite2Velocity.x > 0) ? 1 : -1;
-		int yDir = (sprite2Velocity.y > 0) ? 1 : -1;
-		int speed = 0;
-		if (isAccelerating) {
-			speed = Math.abs(sprite2Velocity.x)+1;
+		int xDir = (frogVelocity.x > 0) ? 1 : -1;
+		int yDir = 1;
+		int speed = 5;
+		if (rising) {
+			yDir = -1;
 		} else {
-			speed = Math.abs(sprite2Velocity.x)-1;
+			yDir = 1;
 		}
 		if (speed>5) speed =5;
 		if (speed<1) speed =1;
-		sprite2Velocity.x=speed*xDir;	
-		sprite2Velocity.y=speed*yDir;
+		frogVelocity.x=speed*xDir;	
+		frogVelocity.y=speed*yDir;
 	}
 
 	
@@ -82,16 +86,16 @@ public class Main extends Activity implements OnClickListener{
 		int max = 5;
 		int x = r.nextInt(max-min+1)+min;
 		int y = r.nextInt(max-min+1)+min;
-		return new Point (x,y); 
+		return new Point (-x,-y); 
 	}
 
 	private Point getRandomPoint() {
 		Random r = new Random();
 	    int minX = 0;
-	    int maxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).getSprite1Width();
+	    int maxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth();
 		int x = 0;
 	    int minY = 0;
- 	    int maxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).getSprite1Height();
+ 	    int maxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getHeight();
  	    int y = 0;
   	   	x = r.nextInt(maxX-minX+1)+minX;
 		y = r.nextInt(maxY-minY+1)+minY;
@@ -104,15 +108,15 @@ public class Main extends Activity implements OnClickListener{
     	do {
     		p1 = getRandomPoint();
     		p2 = getRandomPoint();
-    	} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).getSprite1Width());
-    	((GameBoard)findViewById(R.id.the_canvas)).setSprite1(p1.x, p1.y);
-    	((GameBoard)findViewById(R.id.the_canvas)).setSprite2(p2.x, p2.y);
-    	sprite1Velocity = getRandomVelocity();
-    	sprite2Velocity = new Point(1,1);
-    	sprite1MaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).getSprite1Width();
-    	sprite1MaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).getSprite1Height();
-    	sprite2MaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).getSprite2Width();
-    	sprite2MaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).getSprite2Height();
+    	} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth());
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(p1.x, p1.y);
+    	((GameBoard)findViewById(R.id.the_canvas)).setfrog(p2.x, p2.y);
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroid.setVelocity(getRandomVelocity());
+    	frogVelocity = new Point(1,1);
+    	asteroidMaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth();
+    	asteroidMaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getHeight();
+    	frogMaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).getfrogWidth();
+    	frogMaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).getfrogHeight();
     	((Button)findViewById(R.id.the_button)).setEnabled(true);
     	frame.removeCallbacks(frameUpdate);
     	((GameBoard)findViewById(R.id.the_canvas)).invalidate();
@@ -136,32 +140,33 @@ public class Main extends Activity implements OnClickListener{
     		return;
     	}
 		frame.removeCallbacks(frameUpdate);
-		//Add call to increase or decrease velocity
+		//Add our call to increase or decrease velocity
 		updateVelocity();
-		//Display frog speed
-		((TextView)findViewById(R.id.the_label)).setText("Sprite Acceleration ("+Integer.toString(sprite2Velocity.x)+","+Integer.toString(sprite2Velocity.y)+")");
-		Point sprite1 = new Point (((GameBoard)findViewById(R.id.the_canvas)).getSprite1X(),
-				((GameBoard)findViewById(R.id.the_canvas)).getSprite1Y()) ;
-		Point sprite2 = new Point (((GameBoard)findViewById(R.id.the_canvas)).getSprite2X(),
-				((GameBoard)findViewById(R.id.the_canvas)).getSprite2Y());
-		sprite1.x = sprite1.x + sprite1Velocity.x;
-		if (sprite1.x > sprite1MaxX || sprite1.x < 5) {
-			sprite1Velocity.x *= -1;
+		//Display UFO speed
+		((TextView)findViewById(R.id.the_label)).setText("Sprite Acceleration ("+Integer.toString(frogVelocity.x)+","+Integer.toString(frogVelocity.y)+")");
+		Point asteroid = new Point (((GameBoard)findViewById(R.id.the_canvas)).asteroid.getX(),
+				((GameBoard)findViewById(R.id.the_canvas)).asteroid.getY()) ;
+		Point frog = new Point (((GameBoard)findViewById(R.id.the_canvas)).getfrogX(),
+				((GameBoard)findViewById(R.id.the_canvas)).getfrogY());
+		asteroid.x = asteroid.x + ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getVelocity().x;
+//		if (asteroid.x > asteroidMaxX || asteroid.x < 5) {
+//			asteroidVelocity.x *= -1;
+//		}
+//		asteroid.y = asteroid.y + 0;
+//		if (asteroid.y > asteroidMaxY || asteroid.y < 5) {
+//			asteroidVelocity.y *= -1;
+//		}
+		frog.x = 10;
+		if (frog.x > frogMaxX || frog.x < 5) {
+			frogVelocity.x *= -1;
 		}
-		sprite1.y = sprite1.y + sprite1Velocity.y;
-		if (sprite1.y > sprite1MaxY || sprite1.y < 5) {
-			sprite1Velocity.y *= -1;
+		frog.y = frog.y + frogVelocity.y;
+		if (frog.y > frogMaxY || frog.y < 5) {
+			frogVelocity.y *= 1;
+			frog.y -= frogVelocity.y;
 		}
-		sprite2.x = sprite2.x + sprite2Velocity.x;
-		if (sprite2.x > sprite2MaxX || sprite2.x < 5) {
-			sprite2Velocity.x *= -1;
-		}
-		sprite2.y = sprite2.y + sprite2Velocity.y;
-		if (sprite2.y > sprite2MaxY || sprite2.y < 5) {
-			sprite2Velocity.y *= -1;
-		}
-		((GameBoard)findViewById(R.id.the_canvas)).setSprite1(sprite1.x, sprite1.y);
-	    ((GameBoard)findViewById(R.id.the_canvas)).setSprite2(sprite2.x, sprite2.y);
+		((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(asteroid.x, asteroid.y);
+	    ((GameBoard)findViewById(R.id.the_canvas)).setfrog(frog.x, frog.y);
 		((GameBoard)findViewById(R.id.the_canvas)).invalidate();
 		frame.postDelayed(frameUpdate, FRAME_RATE);
 	}

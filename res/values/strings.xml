@@ -3,6 +3,6 @@
     <string name="app_name">FrogJumpR</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">Game Dev Tutorial</string>
+    <string name="title_activity_main">FrogJumpR</string>
 
 </resources>
