@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.neilanddan.app.R;
+import com.authorwjf.gamedevtut05.R;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -24,10 +24,10 @@ public class GameBoard extends View{
 	private List<Point> starField = null;
 	private int starAlpha = 80;
 	private int starFade = 2;
-//	private Rect asteroidBounds = new Rect(0,0,0,0);
-	private Rect frogBounds = new Rect(0,0,0,0);
-//	private Point asteroid;
-	private Point frog;
+	private Rect sprite1Bounds = new Rect(0,0,0,0);
+	private Rect sprite2Bounds = new Rect(0,0,0,0);
+	private Point sprite1;
+	private Point sprite2;
 	private Bitmap bm1 = null;
 	private Matrix m = null;
 	private Bitmap bm2 = null;
@@ -35,59 +35,59 @@ public class GameBoard extends View{
 	private boolean collisionDetected = false;
 	private Point lastCollision = new Point(-1,-1);
 	
-
+	private int sprite1Rotation = 0;
 	
 	private static final int NUM_OF_STARS = 25;
 	
 	//Allow our controller to get and set the sprite positions
-	public Asteroid asteroid;
+	
 	//sprite 1 setter
-//	synchronized public void setSprite1(int x, int y) {
-//		asteroid=new Point(x,y);
-//	}
-//	
-//	//sprite 1 getter
-//	synchronized public int getSprite1X() {
-//		return asteroid.x;
-//	}
-//	
-//	synchronized public int getSprite1Y() {
-//		return asteroid.y;
-//	}
+	synchronized public void setSprite1(int x, int y) {
+		sprite1=new Point(x,y);
+	}
+	
+	//sprite 1 getter
+	synchronized public int getSprite1X() {
+		return sprite1.x;
+	}
+	
+	synchronized public int getSprite1Y() {
+		return sprite1.y;
+	}
 	
 	//sprite 2 setter
-	synchronized public void setfrog(int x, int y) {
-		frog=new Point(x,y);
+	synchronized public void setSprite2(int x, int y) {
+		sprite2=new Point(x,y);
 	}
 	
 	//sprite 2 getter
-	synchronized public int getfrogX() {
-		return frog.x;
+	synchronized public int getSprite2X() {
+		return sprite2.x;
 	}
 	
-	synchronized public int getfrogY() {
-		return frog.y;
+	synchronized public int getSprite2Y() {
+		return sprite2.y;
 	}
 	
 	synchronized public void resetStarField() {
 		starField = null;
 	}
 	
-//	//expose sprite bounds to controller
-//	synchronized public int getSprite1Width() {
-//		return asteroidBounds.width();
-//	}
-//	
-//	synchronized public int getSprite1Height() {
-//		return asteroidBounds.height();
-//	}
-//	
-	synchronized public int getfrogWidth() {
-		return frogBounds.width();
+	//expose sprite bounds to controller
+	synchronized public int getSprite1Width() {
+		return sprite1Bounds.width();
 	}
 	
-	synchronized public int getfrogHeight() {
-		return frogBounds.height();
+	synchronized public int getSprite1Height() {
+		return sprite1Bounds.height();
+	}
+	
+	synchronized public int getSprite2Width() {
+		return sprite2Bounds.width();
+	}
+	
+	synchronized public int getSprite2Height() {
+		return sprite2Bounds.height();
 	}
 	
 	//return the point of the last collision
@@ -104,15 +104,15 @@ public class GameBoard extends View{
 		super(context, aSet);
 		p = new Paint();
 		//load our bitmaps and set the bounds for the controller
-		asteroid = new Asteroid(-1,-1);
-		frog = new Point(-1,-1);
+		sprite1 = new Point(-1,-1);
+		sprite2 = new Point(-1,-1);
 		//Define a matrix so we can rotate the asteroid
 		m = new Matrix(); 
 		p = new Paint();
 		bm1 = BitmapFactory.decodeResource(getResources(), R.drawable.asteroid);
-		bm2 = BitmapFactory.decodeResource(getResources(), R.drawable.ufo);
-		asteroid.setSpriteBounds(new Rect(0,0, bm1.getWidth(), bm1.getHeight()));
-		frogBounds = new Rect(0,0, bm2.getWidth(), bm2.getHeight());
+		bm2 = BitmapFactory.decodeResource(getResources(), R.drawable.frog);
+		sprite1Bounds = new Rect(0,0, bm1.getWidth(), bm1.getHeight());
+		sprite2Bounds = new Rect(0,0, bm2.getWidth(), bm2.getHeight());
 	}
 	
 	synchronized private void initializeStars(int maxX, int maxY) {
@@ -127,16 +127,16 @@ public class GameBoard extends View{
 	}
 	
 	private boolean checkForCollision() {
-		if (asteroid.getX()<0 && frog.x<0 && asteroid.getY()<0 && frog.y<0) return false;
-		Rect r1 = new Rect(asteroid.getX(), asteroid.getY(), asteroid.getX() + asteroid.getWidth(),  asteroid.getY() + asteroid.getHeight());
-		Rect r2 = new Rect(frog.x, frog.y, frog.x + frogBounds.width(), frog.y + frogBounds.height());
+		if (sprite1.x<0 && sprite2.x<0 && sprite1.y<0 && sprite2.y<0) return false;
+		Rect r1 = new Rect(sprite1.x, sprite1.y, sprite1.x + sprite1Bounds.width(),  sprite1.y + sprite1Bounds.height());
+		Rect r2 = new Rect(sprite2.x, sprite2.y, sprite2.x + sprite2Bounds.width(), sprite2.y + sprite2Bounds.height());
 		Rect r3 = new Rect(r1);
 		if(r1.intersect(r2)) {
 			for (int i = r1.left; i<r1.right; i++) {
 				for (int j = r1.top; j<r1.bottom; j++) {
 					if (bm1.getPixel(i-r3.left, j-r3.top)!= Color.TRANSPARENT) {
 						if (bm2.getPixel(i-r2.left, j-r2.top) != Color.TRANSPARENT) {
-							lastCollision = new Point(frog.x + i-r2.left, frog.y + j-r2.top);
+							lastCollision = new Point(sprite2.x + i-r2.left, sprite2.y + j-r2.top);
 							return true;
 						}
 					}
@@ -150,7 +150,7 @@ public class GameBoard extends View{
 	@Override
 	synchronized public void onDraw(Canvas canvas) {
 		
-		p.setColor(Color.BLUE);
+		p.setColor(Color.GREEN);
 		p.setAlpha(255);
 	    p.setStrokeWidth(1);
 		canvas.drawRect(0, 0, getWidth(), getHeight(), p);
@@ -159,7 +159,7 @@ public class GameBoard extends View{
 			initializeStars(canvas.getWidth(), canvas.getHeight());
 		}
 		
-		p.setColor(Color.GREEN);
+		p.setColor(Color.CYAN);
 		p.setAlpha(starAlpha+=starFade);
 		if (starAlpha>=252 || starAlpha <=80) starFade=starFade*-1;
 		p.setStrokeWidth(5);
@@ -167,16 +167,16 @@ public class GameBoard extends View{
 			canvas.drawPoint(starField.get(i).x, starField.get(i).y, p);
 		}
 		
-		if (asteroid.getX()>=0) {
+		if (sprite1.x>=0) {
 			m.reset();
-			m.postTranslate((float)(asteroid.getX()), (float)(asteroid.getY()));
-			m.postRotate(asteroid.getRot(), (float)(asteroid.getX()+asteroid.getWidth()/2.0), (float)(asteroid.getY()+asteroid.getWidth()/2.0));
+			m.postTranslate((float)(sprite1.x), (float)(sprite1.y));
+			m.postRotate(sprite1Rotation, (float)(sprite1.x+sprite1Bounds.width()/2.0), (float)(sprite1.y+sprite1Bounds.width()/2.0));
 			canvas.drawBitmap(bm1, m, null);
-			asteroid.setRot(asteroid.getRot()+5);
-			if (asteroid.getRot() >= 360) asteroid.setRot(0);
+			sprite1Rotation+=5;
+			if (sprite1Rotation >= 360) sprite1Rotation=0;
 		}
-		if (frog.x>=0) {
-			canvas.drawBitmap(bm2, frog.x, frog.y, null);
+		if (sprite2.x>=0) {
+			canvas.drawBitmap(bm2, sprite2.x, sprite2.y, null);
 		}
 		collisionDetected = checkForCollision();
 		if (collisionDetected ) {
