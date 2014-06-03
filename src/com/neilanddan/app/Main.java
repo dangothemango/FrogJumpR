@@ -1,8 +1,10 @@
 package com.neilanddan.app;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.neilanddan.app.R;
+import com.neilanddan.drawing.Asteroid;
 import com.neilanddan.drawing.GameBoard;
 
 import android.os.Bundle;
@@ -30,9 +32,13 @@ public class Main extends Activity implements OnClickListener{
 	//acceleration flag
 	private boolean rising = false;
 	private static final int FRAME_RATE = 20; //50 frames per second
-	
+	public ArrayList<Asteroid> asteroids =  new ArrayList<Asteroid>();
+
 	//Method for getting touch state--requires android 2.1 or greater
 	@Override
+	
+	
+	
 	synchronized public boolean onTouchEvent(MotionEvent ev) {
        final int action = ev.getAction();
        switch (action & MotionEvent.ACTION_MASK) {
@@ -45,6 +51,14 @@ public class Main extends Activity implements OnClickListener{
 	   		rising=false;
      		break;
      	}
+       Point p1, p2;
+   		do {
+   			p1 = getRandomPoint();
+   			p2 = getRandomPoint();
+   		} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth());
+       
+   		((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(p1.x, p1.y);
+
 	    return true;
 	}
 	
@@ -165,7 +179,7 @@ public class Main extends Activity implements OnClickListener{
 			frogVelocity.y *= 1;
 			frog.y -= frogVelocity.y;
 		}
-		((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(asteroid.x, asteroid.y);
+		((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(asteroid.x, asteroid.y); //sets the thing there
 	    ((GameBoard)findViewById(R.id.the_canvas)).setfrog(frog.x, frog.y);
 		((GameBoard)findViewById(R.id.the_canvas)).invalidate();
 		frame.postDelayed(frameUpdate, FRAME_RATE);

@@ -34,9 +34,6 @@ public class GameBoard extends View{
 	//Collision flag and point
 	private boolean collisionDetected = false;
 	private Point lastCollision = new Point(-1,-1);
-	
-
-	
 	private static final int NUM_OF_STARS = 25;
 	
 	//Allow our controller to get and set the sprite positions
@@ -116,6 +113,7 @@ public class GameBoard extends View{
 		frogBounds = new Rect(0,0, bm2.getWidth(), bm2.getHeight());
 	}
 	
+	//twinkle twinkle little star
 	synchronized private void initializeStars(int maxX, int maxY) {
 		starField = new ArrayList<Point>();
 		for (int i=0; i<NUM_OF_STARS; i++) {
@@ -127,6 +125,8 @@ public class GameBoard extends View{
 		collisionDetected = false;
 	}
 	
+	
+	//I wonder where the *** you are
 	private boolean checkForCollision() {
 		if (asteroid.getX()<0 && frog.x<0 && asteroid.getY()<0 && frog.y<0) return false;
 		Rect r1 = new Rect(asteroid.getX(), asteroid.getY(), asteroid.getX() + asteroid.getWidth(),  asteroid.getY() + asteroid.getHeight());
