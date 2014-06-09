@@ -35,6 +35,8 @@ public class GameBoard extends View{
 	private boolean collisionDetected = false;
 	private Point lastCollision = new Point(-1,-1);
 	private static final int NUM_OF_STARS = 25;
+	public ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
+//	public Asteroid asteroid = new Asteroid(-1, -1, new Point(-10,-10));
 	
 	//Allow our controller to get and set the sprite positions
 	//sprite 1 setter
@@ -56,9 +58,9 @@ public class GameBoard extends View{
 		frog=new Point(x,y);
 	}
 	synchronized public Asteroid createAsteroid(int x,int y,Point speed) {
+		
 		return new Asteroid(x,y,speed);
-	}
-	public Asteroid asteroid = createAsteroid(-1,-1, new Point (-10,-10));
+	}	
 	//sprite 2 getter
 	synchronized public int getfrogX() {
 		return frog.x;
@@ -99,6 +101,9 @@ public class GameBoard extends View{
 		return collisionDetected;
 	}
 	
+	
+	
+
 	public GameBoard(Context context, AttributeSet aSet) {
 		super(context, aSet);
 		p = new Paint();
@@ -109,7 +114,9 @@ public class GameBoard extends View{
 		p = new Paint();
 		bm1 = BitmapFactory.decodeResource(getResources(), R.drawable.asteroid);
 		bm2 = BitmapFactory.decodeResource(getResources(), R.drawable.ufo);
-		asteroid.setSpriteBounds(new Rect(0,0, bm1.getWidth(), bm1.getHeight()));
+		for ( int i =0; i<asteroids.size(); i++){
+			asteroids.get(i).setSpriteBounds(new Rect(0,0, bm1.getWidth(), bm1.getHeight()));
+		}
 		frogBounds = new Rect(0,0, bm2.getWidth(), bm2.getHeight());
 	}
 	
@@ -124,21 +131,22 @@ public class GameBoard extends View{
 		}
 		collisionDetected = false;
 	}
-	
-	
+		
 	//I wonder where the *** you are
 	private boolean checkForCollision() {
-		if (asteroid.getX()<0 && frog.x<0 && asteroid.getY()<0 && frog.y<0) return false;
-		Rect r1 = new Rect(asteroid.getX(), asteroid.getY(), asteroid.getX() + asteroid.getWidth(),  asteroid.getY() + asteroid.getHeight());
-		Rect r2 = new Rect(frog.x, frog.y, frog.x + frogBounds.width(), frog.y + frogBounds.height());
-		Rect r3 = new Rect(r1);
-		if(r1.intersect(r2)) {
-			for (int i = r1.left; i<r1.right; i++) {
-				for (int j = r1.top; j<r1.bottom; j++) {
-					if (bm1.getPixel(i-r3.left, j-r3.top)!= Color.TRANSPARENT) {
-						if (bm2.getPixel(i-r2.left, j-r2.top) != Color.TRANSPARENT) {
-							lastCollision = new Point(frog.x + i-r2.left, frog.y + j-r2.top);
-							return true;
+		for ( int I =0; I<asteroids.size(); I++){
+			if (asteroids.get(I).getX()<0 && frog.x<0 && asteroids.get(I).getY()<0 && frog.y<0) return false;
+			Rect r1 = new Rect(asteroids.get(I).getX(), asteroids.get(I).getY(), asteroids.get(I).getX() + asteroids.get(I).getWidth(),  asteroids.get(I).getY() + asteroids.get(I).getHeight());
+			Rect r2 = new Rect(frog.x, frog.y, frog.x + frogBounds.width(), frog.y + frogBounds.height());
+			Rect r3 = new Rect(r1);
+			if(r1.intersect(r2)) {
+				for (int i = r1.left; i<r1.right; i++) {
+					for (int j = r1.top; j<r1.bottom; j++) {
+						if (bm1.getPixel(i-r3.left, j-r3.top)!= Color.TRANSPARENT) {
+							if (bm2.getPixel(i-r2.left, j-r2.top) != Color.TRANSPARENT) {
+								lastCollision = new Point(frog.x + i-r2.left, frog.y + j-r2.top);
+								return true;
+							}
 						}
 					}
 				}
@@ -148,6 +156,7 @@ public class GameBoard extends View{
 		return false;
 	}
 	
+	//Starfield code
 	@Override
 	synchronized public void onDraw(Canvas canvas) {
 		
@@ -168,13 +177,15 @@ public class GameBoard extends View{
 			canvas.drawPoint(starField.get(i).x, starField.get(i).y, p);
 		}
 		
-		if (asteroid.getX()>=0) {
-			m.reset();
-			m.postTranslate((float)(asteroid.getX()), (float)(asteroid.getY()));
-			m.postRotate(asteroid.getRot(), (float)(asteroid.getX()+asteroid.getWidth()/2.0), (float)(asteroid.getY()+asteroid.getWidth()/2.0));
-			canvas.drawBitmap(bm1, m, null);
-			asteroid.setRot(asteroid.getRot()+5);
-			if (asteroid.getRot() >= 360) asteroid.setRot(0);
+		for ( int i =0; i<asteroids.size(); i++){
+			if (asteroids.get(i).getX()>=0) {
+				m.reset();
+				m.postTranslate((float)(asteroids.get(i).getX()), (float)(asteroids.get(i).getY()));
+				m.postRotate(asteroids.get(i).getRot(), (float)(asteroids.get(i).getX()+asteroids.get(i).getWidth()/2.0), (float)(asteroids.get(i).getY()+asteroids.get(i).getWidth()/2.0));
+				canvas.drawBitmap(bm1, m, null);
+				asteroids.get(i).setRot(asteroids.get(i).getRot()+5);
+				if (asteroids.get(i).getRot() >= 360) asteroids.get(i).setRot(0);
+			}
 		}
 		if (frog.x>=0) {
 			canvas.drawBitmap(bm2, frog.x, frog.y, null);

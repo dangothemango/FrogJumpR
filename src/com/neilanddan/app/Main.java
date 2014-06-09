@@ -1,21 +1,17 @@
 package com.neilanddan.app;
 
-import java.util.ArrayList;
 import java.util.Random;
 
-import com.neilanddan.app.R;
-import com.neilanddan.drawing.Asteroid;
-import com.neilanddan.drawing.GameBoard;
-
+import android.app.Activity;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
-import android.app.Activity;
-import android.graphics.Point;
+
+import com.neilanddan.drawing.Asteroid;
+import com.neilanddan.drawing.GameBoard;
 
 public class Main extends Activity implements OnClickListener{
 
@@ -32,8 +28,11 @@ public class Main extends Activity implements OnClickListener{
 	//acceleration flag
 	private boolean rising = false;
 	private static final int FRAME_RATE = 20; //50 frames per second
-	public ArrayList<Asteroid> asteroids =  new ArrayList<Asteroid>();
 
+	@Override
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
+	}
 	//Method for getting touch state--requires android 2.1 or greater
 	@Override
 	
@@ -51,16 +50,19 @@ public class Main extends Activity implements OnClickListener{
 	   		rising=false;
      		break;
      	}
-       Point p1, p2;
-   		do {
-   			p1 = getRandomPoint();
-   			p2 = getRandomPoint();
-   		} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth());
+       initasteroid();
        
-   		((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(p1.x, p1.y);
-
+   		/*((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(p1.x, p1.y);*/
+   		
+   		int motionaction = ev.getAction();
+   		switch (motionaction & MotionEvent.ACTION_MASK){
+   		case MotionEvent.ACTION_POINTER_DOWN:
+   			initGfx();
+   		}
+   		
 	    return true;
 	}
+	
 	
 	//Increase the velocity towards five or decrease
 	//back to one depending on state
@@ -85,7 +87,6 @@ public class Main extends Activity implements OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Handler h = new Handler();
-        ((Button)findViewById(R.id.the_button)).setOnClickListener(this);
         h.postDelayed(new Runnable() {
 			@Override
 			public void run() {
@@ -103,44 +104,57 @@ public class Main extends Activity implements OnClickListener{
 		return new Point (-x,-y); 
 	}
 
-	private Point getRandomPoint() {
+	private Point getRandomPoint(Asteroid ast) {
 		Random r = new Random();
 	    int minX = 0;
-	    int maxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth();
+	    int maxX = findViewById(R.id.the_canvas).getWidth() - ast.getWidth();
 		int x = 0;
 	    int minY = 0;
- 	    int maxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getHeight();
+ 	    int maxY = findViewById(R.id.the_canvas).getHeight() - ast.getHeight();
  	    int y = 0;
   	   	x = r.nextInt(maxX-minX+1)+minX;
 		y = r.nextInt(maxY-minY+1)+minY;
 		return new Point (x,y);
 	}
     
+	
     synchronized public void initGfx() {
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.clear();
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.add(new Asteroid(-1, -1, new Point(-10,-10)));
     	((GameBoard)findViewById(R.id.the_canvas)).resetStarField();
     	Point p1, p2;
     	do {
-    		p1 = getRandomPoint();
-    		p2 = getRandomPoint();
-    	} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth());
-    	((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(p1.x, p1.y);
+    		p1 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
+    		p2 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
+    	} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getWidth());
     	((GameBoard)findViewById(R.id.the_canvas)).setfrog(p2.x, p2.y);
-    	((GameBoard)findViewById(R.id.the_canvas)).asteroid.setVelocity(getRandomVelocity());
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).setSprite(p1.x, p1.y);
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).setVelocity(getRandomVelocity());
     	frogVelocity = new Point(1,1);
-    	asteroidMaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getWidth();
-    	asteroidMaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getHeight();
+    	asteroidMaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getWidth();
+    	asteroidMaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getHeight();
     	frogMaxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).getfrogWidth();
     	frogMaxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).getfrogHeight();
-    	((Button)findViewById(R.id.the_button)).setEnabled(true);
+    	frame.removeCallbacks(frameUpdate);
+    	((GameBoard)findViewById(R.id.the_canvas)).invalidate();
+    	frame.postDelayed(frameUpdate, FRAME_RATE);
+
+    	
+    }
+    
+    synchronized public void initasteroid() {
+    	Point d1, d2;
+    	do {
+    		d1 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
+    		d2 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
+    	} while (Math.abs(d1.x - d2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getWidth());
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.add(new Asteroid(-1, -1, new Point(-10,-10)));
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(((GameBoard)findViewById(R.id.the_canvas)).asteroids.size()).setSprite(d1.x, d1.y);
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(((GameBoard)findViewById(R.id.the_canvas)).asteroids.size()).setVelocity(getRandomVelocity());
     	frame.removeCallbacks(frameUpdate);
     	((GameBoard)findViewById(R.id.the_canvas)).invalidate();
     	frame.postDelayed(frameUpdate, FRAME_RATE);
     }
-
-   @Override
-   synchronized public void onClick(View v) {
-	   initGfx();
-   }
    
   private Runnable frameUpdate = new Runnable() {
 
@@ -149,20 +163,21 @@ public class Main extends Activity implements OnClickListener{
 		if (((GameBoard)findViewById(R.id.the_canvas)).wasCollisionDetected()) {
     		Point collisionPoint = ((GameBoard)findViewById(R.id.the_canvas)).getLastCollision();
     		if (collisionPoint.x>=0) {
-    			((TextView)findViewById(R.id.the_other_label)).setText("Last Collision XY ("+Integer.toString(collisionPoint.x)+","+Integer.toString(collisionPoint.y)+")");
     		}
     		return;
     	}
 		frame.removeCallbacks(frameUpdate);
 		//Add our call to increase or decrease velocity
 		updateVelocity();
-		//Display UFO speed
-		((TextView)findViewById(R.id.the_label)).setText("Sprite Acceleration ("+Integer.toString(frogVelocity.x)+","+Integer.toString(frogVelocity.y)+")");
-		Point asteroid = new Point (((GameBoard)findViewById(R.id.the_canvas)).asteroid.getX(),
-				((GameBoard)findViewById(R.id.the_canvas)).asteroid.getY()) ;
+		//Display speed
 		Point frog = new Point (((GameBoard)findViewById(R.id.the_canvas)).getfrogX(),
 				((GameBoard)findViewById(R.id.the_canvas)).getfrogY());
-		asteroid.x = asteroid.x + ((GameBoard)findViewById(R.id.the_canvas)).asteroid.getVelocity().x;
+		for ( int i =0; i<((GameBoard)findViewById(R.id.the_canvas)).asteroids.size(); i++){
+			Point asteroid = new Point (((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(i).getX(),
+					((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(i).getY()) ;
+			asteroid.x = asteroid.x + ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(i).getVelocity().x;
+			((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(i).setSprite(asteroid.x, asteroid.y);
+		}
 //		if (asteroid.x > asteroidMaxX || asteroid.x < 5) {
 //			asteroidVelocity.x *= -1;
 //		}
@@ -179,11 +194,13 @@ public class Main extends Activity implements OnClickListener{
 			frogVelocity.y *= 1;
 			frog.y -= frogVelocity.y;
 		}
-		((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(asteroid.x, asteroid.y); //sets the thing there
+		//sets the thing there
 	    ((GameBoard)findViewById(R.id.the_canvas)).setfrog(frog.x, frog.y);
 		((GameBoard)findViewById(R.id.the_canvas)).invalidate();
 		frame.postDelayed(frameUpdate, FRAME_RATE);
 	}
-	   
-   };
+  };
 }
+
+
+

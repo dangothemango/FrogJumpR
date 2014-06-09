@@ -4,43 +4,10 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center"
-        android:text="FrogJumpR"
-        tools:ignore="HardcodedText" />
-
-    <Button
-        android:id="@+id/the_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:enabled="false"
-        android:gravity="center"
-        android:text="Reset"
-        tools:ignore="HardcodedText" />
-
-    <TextView
-        android:id="@+id/the_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Sprite Speed (?,?)"
-        tools:ignore="HardcodedText" />
-
-    <TextView
-        android:id="@+id/the_other_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Last Collision XY (?,?)"
-        tools:ignore="HardcodedText" />
-
     <com.neilanddan.drawing.GameBoard
         android:id="@+id/the_canvas"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_margin="20dip" />
+        android:layout_margin="0dip" />
 
 </LinearLayout>
