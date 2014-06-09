@@ -133,24 +133,22 @@ public class GameBoard extends View{
 	}
 		
 	//I wonder where the *** you are
-	private boolean checkForCollision() {
-		for ( int I =0; I<asteroids.size(); I++){
-			if (asteroids.get(I).getX()<0 && frog.x<0 && asteroids.get(I).getY()<0 && frog.y<0) return false;
-			Rect r1 = new Rect(asteroids.get(I).getX(), asteroids.get(I).getY(), asteroids.get(I).getX() + asteroids.get(I).getWidth(),  asteroids.get(I).getY() + asteroids.get(I).getHeight());
-			Rect r2 = new Rect(frog.x, frog.y, frog.x + frogBounds.width(), frog.y + frogBounds.height());
-			Rect r3 = new Rect(r1);
-			if(r1.intersect(r2)) {
-				for (int i = r1.left; i<r1.right; i++) {
-					for (int j = r1.top; j<r1.bottom; j++) {
-						if (bm1.getPixel(i-r3.left, j-r3.top)!= Color.TRANSPARENT) {
-							if (bm2.getPixel(i-r2.left, j-r2.top) != Color.TRANSPARENT) {
-								lastCollision = new Point(frog.x + i-r2.left, frog.y + j-r2.top);
-								return true;
-							}
+	private boolean checkForCollision(Asteroid ast) {
+		if (ast.getX()<0 && frog.x<0 && ast.getY()<0 && frog.y<0) return false;
+		Rect r1 = new Rect(ast.getX(), ast.getY(), ast.getX() + ast.getWidth(),  ast.getY() + ast.getHeight());
+		Rect r2 = new Rect(frog.x, frog.y, frog.x + frogBounds.width(), frog.y + frogBounds.height());
+		Rect r3 = new Rect(r1);
+		if(r1.intersect(r2)) {
+			for (int i = r1.left; i<r1.right; i++) {
+				for (int j = r1.top; j<r1.bottom; j++) {
+					if (bm1.getPixel(i-r3.left, j-r3.top)!= Color.TRANSPARENT) {
+						if (bm2.getPixel(i-r2.left, j-r2.top) != Color.TRANSPARENT) {
+							lastCollision = new Point(frog.x + i-r2.left, frog.y + j-r2.top);
 						}
 					}
 				}
 			}
+			return true;
 		}
 		lastCollision = new Point(-1,-1);
 		return false;
@@ -190,7 +188,12 @@ public class GameBoard extends View{
 		if (frog.x>=0) {
 			canvas.drawBitmap(bm2, frog.x, frog.y, null);
 		}
-		collisionDetected = checkForCollision();
+		for (int i=0;i<asteroids.size();i++){
+			if (checkForCollision(asteroids.get(i))){
+				collisionDetected = true;
+				break;
+			}
+		}
 		if (collisionDetected ) {
 			 p.setColor(Color.RED);
 			 p.setAlpha(255);

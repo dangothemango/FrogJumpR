@@ -44,13 +44,13 @@ public class Main extends Activity implements OnClickListener{
 	      case MotionEvent.ACTION_DOWN:
 	      case MotionEvent.ACTION_POINTER_DOWN:
 	   	   	rising = true;
+	   	   	initasteroid();
     	   	break;
     	  case MotionEvent.ACTION_UP: 
 	      case MotionEvent.ACTION_POINTER_UP:
 	   		rising=false;
      		break;
      	}
-       initasteroid();
        
    		/*((GameBoard)findViewById(R.id.the_canvas)).asteroid.setSprite(p1.x, p1.y);*/
    		
@@ -104,13 +104,13 @@ public class Main extends Activity implements OnClickListener{
 		return new Point (-x,-y); 
 	}
 
-	private Point getRandomPoint(Asteroid ast) {
+	private Point getRandomPoint() {
 		Random r = new Random();
 	    int minX = 0;
-	    int maxX = findViewById(R.id.the_canvas).getWidth() - ast.getWidth();
+	    int maxX = findViewById(R.id.the_canvas).getWidth() - ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getWidth();
 		int x = 0;
 	    int minY = 0;
- 	    int maxY = findViewById(R.id.the_canvas).getHeight() - ast.getHeight();
+ 	    int maxY = findViewById(R.id.the_canvas).getHeight() - ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getHeight();
  	    int y = 0;
   	   	x = r.nextInt(maxX-minX+1)+minX;
 		y = r.nextInt(maxY-minY+1)+minY;
@@ -124,8 +124,8 @@ public class Main extends Activity implements OnClickListener{
     	((GameBoard)findViewById(R.id.the_canvas)).resetStarField();
     	Point p1, p2;
     	do {
-    		p1 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
-    		p2 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
+    		p1 = getRandomPoint();
+    		p2 = getRandomPoint();
     	} while (Math.abs(p1.x - p2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getWidth());
     	((GameBoard)findViewById(R.id.the_canvas)).setfrog(p2.x, p2.y);
     	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).setSprite(p1.x, p1.y);
@@ -145,15 +145,12 @@ public class Main extends Activity implements OnClickListener{
     synchronized public void initasteroid() {
     	Point d1, d2;
     	do {
-    		d1 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
-    		d2 = getRandomPoint(((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0));
+    		d1 = getRandomPoint();
+    		d2 = getRandomPoint();
     	} while (Math.abs(d1.x - d2.x) < ((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(0).getWidth());
     	((GameBoard)findViewById(R.id.the_canvas)).asteroids.add(new Asteroid(-1, -1, new Point(-10,-10)));
-    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(((GameBoard)findViewById(R.id.the_canvas)).asteroids.size()).setSprite(d1.x, d1.y);
-    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(((GameBoard)findViewById(R.id.the_canvas)).asteroids.size()).setVelocity(getRandomVelocity());
-    	frame.removeCallbacks(frameUpdate);
-    	((GameBoard)findViewById(R.id.the_canvas)).invalidate();
-    	frame.postDelayed(frameUpdate, FRAME_RATE);
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(((GameBoard)findViewById(R.id.the_canvas)).asteroids.size()-1).setSprite(d1.x, d1.y);
+    	((GameBoard)findViewById(R.id.the_canvas)).asteroids.get(((GameBoard)findViewById(R.id.the_canvas)).asteroids.size()-1).setVelocity(getRandomVelocity());
     }
    
   private Runnable frameUpdate = new Runnable() {
