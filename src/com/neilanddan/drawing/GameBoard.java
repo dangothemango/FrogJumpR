@@ -31,11 +31,13 @@ public class GameBoard extends View{
 	private Bitmap bm1 = null;
 	private Matrix m = null;
 	private Bitmap bm2 = null;
+	private Bitmap bm3 = null;
 	//Collision flag and point
 	private boolean collisionDetected = false;
 	private Point lastCollision = new Point(-1,-1);
 	private static final int NUM_OF_STARS = 25;
 	public ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
+
 //	public Asteroid asteroid = new Asteroid(-1, -1, new Point(-10,-10));
 	
 	//Allow our controller to get and set the sprite positions
@@ -114,9 +116,7 @@ public class GameBoard extends View{
 		p = new Paint();
 		bm1 = BitmapFactory.decodeResource(getResources(), R.drawable.asteroid);
 		bm2 = BitmapFactory.decodeResource(getResources(), R.drawable.ufo);
-		for ( int i =0; i<asteroids.size(); i++){
-			asteroids.get(i).setSpriteBounds(new Rect(0,0, bm1.getWidth(), bm1.getHeight()));
-		}
+		bm3 = BitmapFactory.decodeResource(getResources(), R.drawable.smash);
 		frogBounds = new Rect(0,0, bm2.getWidth(), bm2.getHeight());
 	}
 	
@@ -174,17 +174,17 @@ public class GameBoard extends View{
 		for (int i=0; i<NUM_OF_STARS; i++) {
 			canvas.drawPoint(starField.get(i).x, starField.get(i).y, p);
 		}
-		
 		for ( int i =0; i<asteroids.size(); i++){
-			if (asteroids.get(i).getX()>=0) {
+			Asteroid rock = asteroids.get(i);
+			if (rock.getX()>=0) {
 				m.reset();
-				m.postTranslate((float)(asteroids.get(i).getX()), (float)(asteroids.get(i).getY()));
-				m.postRotate(asteroids.get(i).getRot(), (float)(asteroids.get(i).getX()+asteroids.get(i).getWidth()/2.0), (float)(asteroids.get(i).getY()+asteroids.get(i).getWidth()/2.0));
+				m.postTranslate((float)(rock.getX()), (float)(rock.getY()));
+//				m.postRotate(rock.getRot(), (float)(rock.getX()+rock.getWidth()/2.0), (float)(rock.getY()+rock.getWidth()/2.0));
 				canvas.drawBitmap(bm1, m, null);
-				asteroids.get(i).setRot(asteroids.get(i).getRot()+5);
-				if (asteroids.get(i).getRot() >= 360) asteroids.get(i).setRot(0);
+				rock.setRot(rock.getRot()+5);
+				if (rock.getRot() >= 360) rock.setRot(0);
 			}
-		}
+		}		
 		if (frog.x>=0) {
 			canvas.drawBitmap(bm2, frog.x, frog.y, null);
 		}
@@ -195,6 +195,7 @@ public class GameBoard extends View{
 			}
 		}
 		if (collisionDetected ) {
+			 canvas.drawBitmap(bm3, frog.x, frog.y, null);
 			 p.setColor(Color.RED);
 			 p.setAlpha(255);
 		     p.setStrokeWidth(5);

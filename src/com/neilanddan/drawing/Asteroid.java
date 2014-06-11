@@ -6,7 +6,7 @@ import android.graphics.Rect;
 public class Asteroid {
 	
 	private Point sprite;
-	private Rect spriteBounds = new Rect(0,0,0,0);
+	private Rect spriteBounds = new Rect(0,0, 50, 50);
 	private int spriteRotation = 0;
 	private Point spriteVelocity;
 	
@@ -46,9 +46,6 @@ public class Asteroid {
 		return spriteBounds.height();
 	}
 	
-	synchronized public void setSpriteBounds(Rect r) {
-		spriteBounds = r;
-	}
 	
 }
 
